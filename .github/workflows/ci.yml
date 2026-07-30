@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pylint
+          pip install -r requirements.txt
+
+      - name: Run pylint
+        run: pylint app.py dashboard.py utils.py --fail-under=5.0
+
+      - name: Build Docker image
+        run: docker build -t quakewatch:ci-${{ github.sha }} .
